@@ -47,6 +47,18 @@ def compute_total_cost(solution, distances):
     length : float
     """
     # Question 1
+    # Append starting point to solution to form a route
+    solution = np.append(solution, solution[0])
+    # Initialise cost
+    cost = 0
+    # Travers the cities in solution in order and compute the distances between
+    # each city and the next city. The total distance is the cost
+    for i in range(len(solution) - 1):
+        cost += distances[solution[i], solution[i+1]]
+        
+    return cost
+    
+    
 
 
 def run_greedy_heuristic(distances):
@@ -84,6 +96,32 @@ def run_greedy_heuristic(distances):
         the solution obtained by the greedy heuristic.
     """
     # Question 2
+    # Set starting city to 0
+    c = 0
+    # Initialise ordered list of cities
+    x = np.array([c])
+    # Initialise set of cities
+    n = np.shape(distances)[0]
+    S = set(range(1,n))
+    # Initialise distances array to not obtain trivial solutions when computing
+    # closest cities
+    distances = distances + (np.max(distances) + 1)*np.eye(n)
+
+    for i in range(1,n):
+         # Update distance matrix to not revisit city c
+         distances[:,c] = distances[:,c] + (np.max(distances))
+         # Set new city to be the closest to c
+         c_new = np.argmin(distances[c,:])
+         # Remove new city from set S and append to route
+         S.discard(c_new)
+         x = np.append(x,c_new)
+         # Set new city to be the next city
+         c = c_new
+
+
+        
+    return x
+    
 
 
 def sample_two_opt(solution):
@@ -110,7 +148,20 @@ def sample_two_opt(solution):
         the sampled solution.
     """
     # Question 3
-
+    n = len(solution)
+    
+    while True:
+        # Sample 2 numbers from the solution space, making the smaller one i 
+        # and the larger one j
+        samples = np.random.permutation(n)[0:2]
+        i = np.min(samples)
+        j = np.max(samples)
+        # if 1 < j-i < n-1, we accept them, otherwise we resample them
+        if j - i > 1 and j - i < n - 1:
+            break
+    # Reverse the order of solutions between x_i and x_j    
+    x = np.concatenate((solution[0:i+1], solution[j:i:-1], solution[j:]))
+    return x
 
 def run_simulated_annealing(
     initial_solution,
