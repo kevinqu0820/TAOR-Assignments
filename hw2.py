@@ -50,13 +50,13 @@ def compute_total_cost(solution, distances):
     # Append starting point to solution to form a route
     solution = np.append(solution, solution[0])
     # Initialise cost
-    cost = 0
+    length = 0
     # Traverse the cities in solution in order and compute the distances 
-    # between each city and the next city. The total distance is the cost
+    # between each city and the next city.
     for i in range(len(solution) - 1):
-        cost += distances[solution[i], solution[i+1]]
+        length += distances[solution[i], solution[i+1]]
         
-    return cost
+    return length
     
     
 
@@ -98,8 +98,8 @@ def run_greedy_heuristic(distances):
     # Question 2
     # Set starting city to 0
     c = 0
-    # Initialise ordered list of cities
-    x = np.array([c])
+    # Initialise solution
+    solution = np.array([c])
     # Initialise set of cities
     n = np.shape(distances)[0]
     S = set(range(1,n))
@@ -114,13 +114,13 @@ def run_greedy_heuristic(distances):
          c_new = np.argmin(distances[c,:])
          # Remove new city from set S and append to route
          S.discard(c_new)
-         x = np.append(x,c_new)
+         solution = np.append(solution,c_new)
          # Set new city to be the next city
          c = c_new
 
 
         
-    return x
+    return solution
     
 
 
@@ -159,9 +159,9 @@ def sample_two_opt(solution):
         # if 1 < j-i < n-1, we accept them, otherwise we resample them
         if j - i > 1 and j - i < n - 1:
             break
-    # Reverse the order of solutions between x_i and x_j    
-    x = np.concatenate((solution[0:i+1], solution[j:i:-1], solution[j:]))
-    return x
+    # Reverse the order of entries in solution between indices i and j  
+    new_solution = np.concatenate((solution[0:i+1], solution[j:i:-1], solution[j:]))
+    return new_solution
 
 def run_simulated_annealing(
     initial_solution,
