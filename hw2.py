@@ -51,8 +51,8 @@ def compute_total_cost(solution, distances):
     solution = np.append(solution, solution[0])
     # Initialise cost
     cost = 0
-    # Travers the cities in solution in order and compute the distances between
-    # each city and the next city. The total distance is the cost
+    # Traverse the cities in solution in order and compute the distances 
+    # between each city and the next city. The total distance is the cost
     for i in range(len(solution) - 1):
         cost += distances[solution[i], solution[i+1]]
         
