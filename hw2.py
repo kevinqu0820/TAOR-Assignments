@@ -160,7 +160,7 @@ def sample_two_opt(solution):
         if j - i > 1 and j - i < n - 1:
             break
     # Reverse the order of entries in solution between indices i and j  
-    new_solution = np.concatenate((solution[0:i+1], solution[j:i:-1], solution[j:]))
+    new_solution = np.concatenate((solution[0:i+1], solution[j:i:-1], solution[j+1:]))
     return new_solution
 
 def run_simulated_annealing(
