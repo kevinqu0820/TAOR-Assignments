@@ -10,6 +10,8 @@ containing a permutation of 0, 1, ...., n - 1. For example, an array
 
 import collections
 import os
+import math
+import random
 
 import matplotlib.pyplot as plt
 
@@ -202,12 +204,29 @@ def run_simulated_annealing(
     objective_list : list of float
         The objective values of the iterates
     """
+    
     best_solution = None  # Store the best solution on this variable.
     best_objective = np.inf  # Store the obj. value of `best_solution` on this.
     objective_list = []  # List to store the objective values of the iterate.
 
     # Question 4
-    # The implementation of simulated annealing...
+    x_list = []  # Store all the iterates
+    x = initial_solution
+    x_list.append(x)
+    objective_list.append(objective(x))
+    for epoch in range(n_epochs-1):
+        #make a neighbourhood N(x), and select x' from N(x) randomly
+        xp = sample(x)
+        dE = objective(xp) - objective(x)
+        p = min(1, math.exp(-(dE)/temperature(epoch)))
+        if random.random() <= p:
+            x = xp
+            x_list.append(x)
+            o = objective(x)
+            objective_list.append(o)
+            best_objective = min(objective_list)
+            best_solution = [q for q, e in zip(x_list, objective_list) if e == best_objective][0]
+    
 
     return SolverResult(best_objective, best_solution, objective_list)
 
@@ -215,7 +234,6 @@ def run_simulated_annealing(
 SolverResult = collections.namedtuple(
     "SolverResult", "objective solution objective_list"
 )
-
 
 def main():
     """Run the main routine of this script"""
@@ -239,10 +257,24 @@ def main():
 
     np.testing.assert_equal(type(sampled_solution), np.ndarray)
     np.testing.assert_equal(sampled_solution.shape, shape)
+    
+    def objective(solution):
+        y = compute_total_cost(solution, distances)
+        return y
 
     # Question 4
-    # Run simulated annealing and plot the result...
-
+    def temperature(k):
+        #return 1/(0.1*k + 1)
+        #return 100/(0.1*k + 1)
+        return 0.1/(0.1*k + 1)
+    
+    for k in range(0, 20):
+        
+        simulated_annealing = run_simulated_annealing(initial_solution, objective, sample_two_opt, 1400, temperature)
+        plt.plot(simulated_annealing[2], color = "blue", linewidth = 1)
+    plt.xlabel("Iteration")
+    plt.ylabel("Objective Value")
+    plt.show()
 
 if __name__ == "__main__":
     import doctest
