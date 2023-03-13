@@ -226,6 +226,10 @@ def run_simulated_annealing(
             objective_list.append(o)
             best_objective = min(objective_list)
             best_solution = [q for q, e in zip(x_list, objective_list) if e == best_objective][0]
+        else:
+            x_list.append(x)
+            o = objective(x)
+            objective_list.append(o)
     
 
     return SolverResult(best_objective, best_solution, objective_list)
@@ -267,14 +271,21 @@ def main():
         #return 1/(0.1*k + 1)
         #return 100/(0.1*k + 1)
         return 0.1/(0.1*k + 1)
+
+    
+    plt.rcParams['font.size'] = '22'
     
     for k in range(0, 20):
         
-        simulated_annealing = run_simulated_annealing(initial_solution, objective, sample_two_opt, 1400, temperature)
-        plt.plot(simulated_annealing[2], color = "blue", linewidth = 1)
+        simulated_annealing = run_simulated_annealing(initial_solution, objective, sample_two_opt, 1500, temperature)
+        plt.plot(simulated_annealing[2], color = "blue", linewidth = 0.5)
     plt.xlabel("Iteration")
     plt.ylabel("Objective Value")
+    plt.figure(1).set_figwidth(12)
+    plt.figure(1).set_figheight(4)
     plt.show()
+    
+    
 
 if __name__ == "__main__":
     import doctest
