@@ -7,6 +7,7 @@ Created on Wed Mar 22 11:22:42 2023
 """
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 def consistency_index(A):
     """
@@ -51,7 +52,6 @@ def consistency_index(A):
 
     return weights.real, CI
 
-
 def generate_random_matrix(n):
     """
     Parameters
@@ -66,11 +66,11 @@ def generate_random_matrix(n):
 
     """
     matrix = np.identity(n)
-    
+
     for i in range(n):
         for j in range(i + 1, n):
-            # Generate random value from Saaty's scale (1, 2, 3, 4, 5, 6, 7, 8, 9)
-            value = np.random.choice(np.arange(1, 10))
+            # Generate random value from Saaty's scale (1, 1/2, 1/3, ..., 1/9, 2, 3, ..., 9)
+            value = np.random.choice(np.concatenate([np.arange(1, 10), 1 / np.arange(1, 10)]))
             matrix[i, j] = value
             matrix[j, i] = 1 / value
     return matrix
@@ -109,8 +109,52 @@ def random_index(n, num_matrices=500, max_value=9):
     return RI
     
 
-A = np.array([[1,5,2,4],[1/5,1,1/2,1/2],[1/2,2,1,2],[1/4,2,1/2,1]])
-w,CI = consistency_index(A)
+# Generate RI values for different dimensions
+dimensions = np.arange(2,11)
+RI = np.zeros(9)
+for i in range(len(dimensions)):
+    RI[i] = random_index(dimensions[i])
+    
+# Plot computed RI values against values in class
+RI_lecture = np.array([0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45, 1.51])
+plt.plot(dimensions, RI_lecture, label = 'Lecture results')
+plt.plot(dimensions, RI, label = 'Our results')
+plt.legend()
+plt.xlabel('Dimensions')
+plt.ylabel('RI')
+plt.savefig('RI.pdf', dpi = 450)
+plt.show()
 
-for n in range(2,11):
-    print(random_index(n))
+# Define pairwise comparison matrices for the laptops in each criterion
+A_Pr = np.array([[1, 2, 6], [1/2, 1, 3], [1/6, 1/3, 1] ])
+A_Pe = np.array([[1, 1/2, 1/4], [2, 1, 1/2], [4, 2, 1]])
+A_BL = np.array([[1, 1/3, 2/3], [3, 1, 2], [3/2, 1/2, 1]])
+A_De = np.array([[1, 5/2, 1/2], [2/5, 1, 1/5], [2, 5, 1]])
+
+# Compute the weights and CI values for each pairwise comparison matrix
+w_Pr,CI_Pr= consistency_index(A_Pr)
+w_Pe,CI_Pe = consistency_index(A_Pe)
+w_BL,CI_BL = consistency_index(A_BL)
+w_De,CI_De = consistency_index(A_De)
+
+# Concatenate weights to form the scores of each laptop in each critoerion
+scores = np.array([w_Pr, w_Pe, w_BL, w_De])
+print(scores)
+
+# Define pairwise comparison matrix for the objectives
+A = np.array([[1, 1, 2, 5], [1, 1, 3, 5], [1/2, 1/3, 1, 5/3], [1/5, 1/5, 3/5, 1]])
+
+# Compute and output weights and CI vaue of A
+w,CI = consistency_index(A)
+print('w =', w)
+print('CI =', CI)
+
+# Compute  and output weighted scores of the laptops
+Z = np.dot(w,scores)
+print('Z =', Z)
+
+# Compute and output RI (at n-4) and consistency ratio 
+print('RI =',random_index(4))
+print('CR =', CI/random_index(4))
+    
+    
